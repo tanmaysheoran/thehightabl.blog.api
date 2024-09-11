@@ -51,3 +51,6 @@ async def signup(signup_request: SignupRequest):
 
 
 # To run the FastAPI app, use: uvicorn app_name:app --reload
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)
