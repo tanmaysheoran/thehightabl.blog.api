@@ -3,3 +3,4 @@ beanie
 motor 
 pydantic 
 uvicorn
+pydantic[email]
