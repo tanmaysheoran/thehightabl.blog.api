@@ -16,7 +16,7 @@ from routes.Post import router as post_router
 from routes.EmailTemplate import router as email_template_router
 import os
 
-# MongoDB connection string (update with your credentials if necessary)
+
 MONGO_URI = os.environ.get("MONGO_URI")
 API_KEY = "mysecretapikey123"
 
