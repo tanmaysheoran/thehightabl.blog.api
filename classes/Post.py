@@ -13,6 +13,8 @@ class Post(Document):
     author_link: Optional[str]
     publish_date: datetime
     body: str
+    mail_subject: str
+    mail_content: str
 
     class Settings:
         collection = "posts"

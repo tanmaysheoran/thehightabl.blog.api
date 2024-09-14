@@ -23,7 +23,7 @@ class PostResponse(BaseModel):
     publish_date: datetime
 
 # Post Endpoints
-\
+
 router = APIRouter(prefix="/posts", tags=["Post"])
 
 @router.post("/", response_model=Post)

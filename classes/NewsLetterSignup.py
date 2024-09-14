@@ -6,6 +6,7 @@ class NewsletterSignup(Document):
     name: str
     location: str
     email: EmailStr
+    isActive: bool = True
 
     class Settings:
         collection = "newsletter"
