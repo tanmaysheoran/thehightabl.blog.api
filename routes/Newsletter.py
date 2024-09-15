@@ -150,7 +150,6 @@ async def get_html(email:EmailStr):
     <div class="container">
         <h1>You've Been Unsubscribed</h1>
         <p>You have successfully been removed from our newsletter. We're sorry to see you go!</p>
-        <a href="https://journey.thehightabl.com" class="back-home">Back to Homepage</a>
     </div>
 
 </body>
