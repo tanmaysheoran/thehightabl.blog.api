@@ -10,7 +10,6 @@ from classes.NewsLetterSignup import NewsletterSignup
 from classes.EmailTemplate import EmailTemplate
 from classes.SendGrid import SendGrid
 
-from bson import ObjectId
 import os
 
 # Newsletter Signup Request Model

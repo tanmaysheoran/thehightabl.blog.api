@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from beanie import init_beanie
 import motor.motor_asyncio
 from contextlib import asynccontextmanager
+import asyncio
+
 
 from classes.BlogContent import BlogContent
 from classes.NewsLetterSignup import NewsletterSignup
@@ -34,7 +36,13 @@ database = client.get_database(name="blog")
 #     yield
 
 async def initialize_database():
-    """Ensures that Beanie is initialized with the database"""
+    try:
+        # Check if there's an existing event loop
+        asyncio.get_running_loop()
+    except RuntimeError:
+        # If no event loop exists, create a new one
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
     await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate])
 
 # Run the database initialization on startup
