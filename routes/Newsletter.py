@@ -160,4 +160,4 @@ async def get_html(email:EmailStr):
         return HTMLResponse(content=html_content)
     except Exception as e:
         print(e)
-        return HTTPException(status_code=500, detail=f"Error occured: {str(e)}")
+        return HTTPException(status_code=500, detail={"message": f"Error occured: {str(e)}"})
