@@ -93,67 +93,70 @@ async def send_newsletter_notification(post_id:str, api_key = Security(get_api_k
 
 @router.get("/unsubscribe", response_class=HTMLResponse)
 async def get_html(email:EmailStr):
-    user = await NewsletterSignup.find_one(NewsletterSignup.email==email)
-    user.isActive = False
-    await user.save()
-    
-    html_content = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unsubscribe Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #555;
-            font-size: 18px;
-            margin: 20px 0;
-        }
-        .back-home {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .back-home:hover {
-            background-color: #2980b9;
-        }
-    </style>
-</head>
-<body>
+    try:
+        user = await NewsletterSignup.find_one(NewsletterSignup.email==email)
+        user.isActive = False
+        await user.save()
+        
+        html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Unsubscribe Confirmation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .container {
+                text-align: center;
+                background-color: #ffffff;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+            }
+            p {
+                color: #555;
+                font-size: 18px;
+                margin: 20px 0;
+            }
+            .back-home {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #3498db;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+            .back-home:hover {
+                background-color: #2980b9;
+            }
+        </style>
+    </head>
+    <body>
 
-    <div class="container">
-        <h1>You've Been Unsubscribed</h1>
-        <p>You have successfully been removed from our newsletter. We're sorry to see you go!</p>
-    </div>
+        <div class="container">
+            <h1>You've Been Unsubscribed</h1>
+            <p>You have successfully been removed from our newsletter. We're sorry to see you go!</p>
+        </div>
 
-</body>
-</html>
+    </body>
+    </html>
 
-    """
-    return HTMLResponse(content=html_content)
+        """
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=f"Error occured: {str(e)}")
