@@ -6,7 +6,6 @@ import motor.motor_asyncio
 from contextlib import asynccontextmanager
 import asyncio
 
-
 from classes.BlogContent import BlogContent
 from classes.NewsLetterSignup import NewsletterSignup
 from classes.Post import Post
@@ -24,29 +23,17 @@ MONGO_URI = os.environ.get("MONGO_URI")
 API_KEY = "mysecretapikey123"
 
 
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
-database = client.get_database(name="blog")
-
-##This is to be used when deploying via dedicated server, does not work with function apps like vercel
-
 # Connect to the database and initialize Beanie with the models
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate])
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+    database = client.get_database(name="blog")
 
-async def initialize_database():
-    try:
-        # Check if there's an existing event loop
-        asyncio.get_running_loop()
-    except RuntimeError:
-        # If no event loop exists, create a new one
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
     await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate])
+    yield
 
 # Run the database initialization on startup
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 origins = ["https://journey.thehightabl.com", "http://localhost:3000"]
 
@@ -58,12 +45,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.middleware("http")
-async def db_init_middleware(request: Request, call_next):
-    await initialize_database()
-    response = await call_next(request)
-    return response
-
 # API endpoint to sign up for the newsletter
 app.include_router(blog_content_router)
 app.include_router(geolocation_router)
@@ -72,7 +53,7 @@ app.include_router(post_router)
 app.include_router(email_template_router)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def home():
     with open("html_templates/home.html", "r") as file:
         html_content = file.read()
