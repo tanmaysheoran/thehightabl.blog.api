@@ -26,7 +26,6 @@ async def lifespan(app: FastAPI):
     client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
     database = client.get_database(name="blog")
     await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate])
-    yield
 
 # Run the database initialization on startup
 app = FastAPI(lifespan=lifespan)

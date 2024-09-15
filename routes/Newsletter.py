@@ -23,25 +23,28 @@ class NewsletterSignupRequest(BaseModel):
 
 router = APIRouter(prefix="/newsletter", tags=["Newsletter"])
 
-@router.post("/signup", response_model=NewsletterSignup)
+@router.post("/signup", response_model=NewsletterSignup, status_code=201)
 async def signup_for_newsletter(newsletter: NewsletterSignupRequest):
-    existing_user = await NewsletterSignup.find_one(NewsletterSignup.email == newsletter.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already signed up for the newsletter")
-
     welcome_mail_template_id = os.environ.get("NEWSLETTER_WELCOME_EMAIL_TEMPLATE_ID")
     if not welcome_mail_template_id:
         raise HTTPException(status_code=500, detail="Missing email template ID in environment variables")
     
     email_template = await EmailTemplate.get(welcome_mail_template_id)
-
-    new_signup = NewsletterSignup(**newsletter.model_dump())
-    await new_signup.insert()
     
+    existing_user = await NewsletterSignup.find_one(NewsletterSignup.email == newsletter.email)
+    if existing_user and existing_user.isActive:
+        raise HTTPException(status_code=400, detail="Email already signed up for the newsletter")
+    elif not existing_user.isActive:
+        existing_user.isActive = True
+        await existing_user.save()
+    else:
+        new_signup = NewsletterSignup(**newsletter.model_dump())
+        await new_signup.insert()
+
     send_grid = SendGrid()
     send_grid.send_email(to_email=newsletter.email, subject=email_template.subject,content=email_template.body.replace("[name]", newsletter.name))
 
-    return new_signup
+    return True
 
 @router.get("/users", response_model=List[NewsletterSignup])
 async def get_newsletter_users(api_key = Security(get_api_key)):

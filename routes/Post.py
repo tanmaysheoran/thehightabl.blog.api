@@ -14,6 +14,8 @@ class PostRequest(BaseModel):
     author_link: Optional[str]
     publish_date: datetime
     body: str
+    mail_subject: str
+    mail_content: str
 
 class PostResponse(BaseModel):
     id: str
@@ -21,6 +23,16 @@ class PostResponse(BaseModel):
     summary: str
     author: str
     publish_date: datetime
+
+class SinglePostResponse(BaseModel):
+    title: str
+    summary: str
+    subtitle: Optional[str]
+    author: str
+    author_link: Optional[str]
+    publish_date: datetime
+    body: str
+
 
 # Post Endpoints
 
@@ -37,7 +49,7 @@ async def list_posts():
     posts = [item.model_dump() for item in await Post.find_all().to_list()]
     return posts
 
-@router.get("/{post_id}", response_model=Post)
+@router.get("/{post_id}", response_model=SinglePostResponse)
 async def get_post(post_id: str):
     post = await Post.get(post_id)
     if not post:
