@@ -25,8 +25,9 @@ dist/
 
 # IDE files
 .idea/
-.vscode/
 
 # Environment variables
 .env
 .env.*
+
+.python_packages
