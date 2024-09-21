@@ -1,7 +1,7 @@
 from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from classes.Post import Post
 from classes.APIKey import get_api_key
 from fastapi import Security
@@ -45,9 +45,22 @@ async def create_post(post: PostRequest, api_key:str = Security(get_api_key)):
     return new_post
 
 @router.get("/", response_model=List[PostResponse])
-async def list_posts():
-    posts = [item.model_dump() for item in await Post.find_all().to_list()]
-    return posts
+async def list_posts(page: int = Query(1, ge=1), limit: int = Query(10, ge=1)):
+    """
+    List posts with pagination based on page number and optional limit.
+
+    :param page: The page number (default: 1).
+    :param limit: The number of posts per page (default: 10).
+    :return: A list of posts for the given page.
+    """
+    # Calculate the number of items to skip based on the page number
+    skip = (page - 1) * limit
+    
+    # Fetch the posts with pagination
+    posts = await Post.find_all().skip(skip).limit(limit).to_list()
+
+    # Return posts after converting them to the response model
+    return [item.model_dump() for item in posts]
 
 @router.get("/{post_id}", response_model=SinglePostResponse)
 async def get_post(post_id: str):
