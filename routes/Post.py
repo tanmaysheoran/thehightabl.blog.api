@@ -1,10 +1,13 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Query
 from classes.Post import Post
 from classes.APIKey import get_api_key
 from fastapi import Security
+from math import ceil
+
+
 # Post Request Models
 class PostRequest(BaseModel):
     title: str
@@ -33,6 +36,12 @@ class SinglePostResponse(BaseModel):
     publish_date: datetime
     body: str
 
+class PaginatedPostResponse(BaseModel):
+    posts: List[PostResponse]
+    total_posts: int
+    total_pages: int
+    current_page: int
+    limit: int
 
 # Post Endpoints
 
@@ -44,23 +53,35 @@ async def create_post(post: PostRequest, api_key:str = Security(get_api_key)):
     await new_post.insert()
     return new_post
 
-@router.get("/", response_model=List[PostResponse])
+@router.get("/", response_model=PaginatedPostResponse)
 async def list_posts(page: int = Query(1, ge=1), limit: int = Query(10, ge=1)):
     """
-    List posts with pagination based on page number and optional limit.
+    List posts with pagination and return additional metadata.
 
     :param page: The page number (default: 1).
     :param limit: The number of posts per page (default: 10).
-    :return: A list of posts for the given page.
+    :return: A dictionary with paginated posts, total posts, and total pages.
     """
     # Calculate the number of items to skip based on the page number
     skip = (page - 1) * limit
-    
-    # Fetch the posts with pagination
+
+    # Get the total number of posts in the collection
+    total_posts = await Post.count()
+
+    # Fetch the paginated posts
     posts = await Post.find_all().skip(skip).limit(limit).to_list()
 
-    # Return posts after converting them to the response model
-    return [item.model_dump() for item in posts]
+    # Calculate the total number of pages
+    total_pages = ceil(total_posts / limit)
+
+    # Return the paginated posts along with metadata
+    return {
+        "posts": [item.model_dump() for item in posts],
+        "total_posts": total_posts,
+        "total_pages": total_pages,
+        "current_page": page,
+        "limit": limit
+    }
 
 @router.get("/{post_id}", response_model=SinglePostResponse)
 async def get_post(post_id: str):
