@@ -26,6 +26,8 @@ class PostResponse(BaseModel):
     summary: str
     author: str
     publish_date: datetime
+    img_url: str
+    text_url: str
 
 class SinglePostResponse(BaseModel):
     title: str
@@ -35,6 +37,7 @@ class SinglePostResponse(BaseModel):
     author_link: Optional[str]
     publish_date: datetime
     body: str
+    img_url: str
 
 class PaginatedPostResponse(BaseModel):
     posts: List[PostResponse]
@@ -69,7 +72,7 @@ async def list_posts(page: int = Query(1, ge=1), limit: int = Query(10, ge=1)):
     total_posts = await Post.count()
 
     # Fetch the paginated posts
-    posts = await Post.find_all().skip(skip).limit(limit).to_list()
+    posts = await Post.find_all().sort("-publish_date").skip(skip).limit(limit).to_list()
 
     # Calculate the total number of pages
     total_pages = ceil(total_posts / limit)
@@ -89,6 +92,14 @@ async def get_post(post_id: str):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
+    
+@router.get("/article/{text_url}", response_model=SinglePostResponse)
+async def get_post_by_text_url(text_url: str):
+    post = await Post.find_one(Post.text_url == text_url)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
 
 @router.put("/{post_id}", response_model=Post)
 async def update_post(post_id: str, post: PostRequest, api_key:str = Security(get_api_key)):

@@ -1,4 +1,6 @@
 from beanie import Document
+from bson import ObjectId
+
 
 class BlogContent(Document):
     page_name: str
@@ -7,3 +9,8 @@ class BlogContent(Document):
 
     class Settings:
         collection = "blog_contents"
+
+    class Config():
+        json_encoders={
+            ObjectId : str
+        }

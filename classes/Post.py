@@ -15,6 +15,8 @@ class Post(Document):
     body: str
     mail_subject: str
     mail_content: str
+    img_url: str
+    text_url:str
 
     class Settings:
         collection = "posts"

@@ -26,7 +26,7 @@ async def list_blog_contents():
 
 @router.get("/{page_name}/{section_name}", response_model=BlogContent)
 async def get_blog_content(page_name: str, section_name:str):
-    content = await BlogContent.get(page_name=page_name, section_name=section_name)
+    content = await BlogContent.find_one(BlogContent.page_name==page_name, BlogContent.section_name==section_name)
     if not content:
         raise HTTPException(status_code=404, detail="Content not found")
     return content
