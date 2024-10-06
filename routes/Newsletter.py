@@ -81,7 +81,7 @@ async def send_newsletter_notification(post_id:str, api_key = Security(get_api_k
 
         original_subject = post.mail_subject or email_template.subject
         original_content = email_template.body.replace("[content]", post.mail_content)
-        original_content = original_content.replace("[link]", f"https://journey.thehightabl.com/post?id={post_id}").replace("[title]", post.title).replace("[summary]", post.summary)
+        original_content = original_content.replace("[link]", f"https://journey.thehightabl.com/posts/article/{post_id}").replace("[title]", post.title).replace("[summary]", post.summary)
         original_subject = original_subject.replace("[title]",post.title)
 
         send_grid = SendGrid()
