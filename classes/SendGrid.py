@@ -15,10 +15,10 @@ class SendGrid():
         instance = super().__new__(cls)
         return instance
 
-    def send_email(self, to_email: str, subject: str, content: str) -> bool:
+    def send_email(self, to_email: str, subject: str, content: str, from_email = None) -> bool:
         try:
             message = Mail(
-                from_email=os.environ.get('SENDGRID_FROM_EMAIL'),
+                from_email=from_email or os.environ.get('SENDGRID_FROM_EMAIL'),
                 to_emails=to_email,
                 subject=subject,
                 html_content=content)

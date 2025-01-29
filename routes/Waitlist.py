@@ -42,7 +42,7 @@ async def signup_for_waitlist(waitlist: WaitlistSignupRequest):
             await new_signup.insert()
 
         send_grid = SendGrid()
-        send_grid.send_email(to_email=waitlist.email, subject=email_template.subject, content=email_template.body.replace("[name]", waitlist.name))
+        send_grid.send_email(to_email=waitlist.email, subject=email_template.subject, content=email_template.body.replace("[name]", waitlist.name), from_email="no-reply@thehightabl.com")
 
         return True
     except Exception as e:
@@ -89,7 +89,7 @@ async def send_waitlist_notification(post_id: str, api_key = Security(get_api_ke
             subject = original_subject.replace("[name]", user.name)
             content = original_content.replace("[name]", user.name).replace("[unsubscribe_link]", f"https://journey-api.thehightabl.com/waitlist/unsubscribe?email={user.email}")
 
-            send_grid.send_email(user.email, subject, content)
+            send_grid.send_email(user.email, subject, content, 'no-reply@thehightabl.com')
         
         return {"status": "success", "emails_sent": len(waitlist)}
     
