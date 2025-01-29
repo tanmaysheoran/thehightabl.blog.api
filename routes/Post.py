@@ -21,7 +21,6 @@ class PostRequest(BaseModel):
     mail_content: str
 
 class PostResponse(BaseModel):
-    id: str
     title: str
     summary: str
     author: str
