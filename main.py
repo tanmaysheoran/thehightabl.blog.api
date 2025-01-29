@@ -10,12 +10,14 @@ from classes.BlogContent import BlogContent
 from classes.NewsLetterSignup import NewsletterSignup
 from classes.Post import Post
 from classes.EmailTemplate import EmailTemplate
+from classes.WaitlistSingup import WaitlistSignup
 
 from routes.BlogContent import router as blog_content_router
 from routes.Geolocation import router as geolocation_router
 from routes.Newsletter import router as newsletter_router
 from routes.Post import router as post_router
 from routes.EmailTemplate import router as email_template_router
+from routes.Waitlist import router as waitlist_signup_router
 import os
 
 # MongoDB connection string (update with your credentials if necessary)
@@ -29,7 +31,7 @@ async def lifespan(app: FastAPI):
     client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
     database = client.get_database(name="blog")
 
-    await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate])
+    await init_beanie(database, document_models=[NewsletterSignup, Post, BlogContent, EmailTemplate, WaitlistSignup])
     yield
 
 # Run the database initialization on startup
@@ -51,6 +53,7 @@ app.include_router(geolocation_router)
 app.include_router(newsletter_router)
 app.include_router(post_router)
 app.include_router(email_template_router)
+app.include_router(waitlist_signup_router)
 
 
 @app.get("/")
